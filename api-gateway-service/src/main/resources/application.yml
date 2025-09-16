@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user-service
+              uri: http://localhost:8081
+              predicates:
+                - Path=/user/**
+            - id: other-service
+              uri: http://localhost:8082
+              predicates:
+                - Path=/other/**
+
+jwt:
+  secret: a-string-secret-at-least-256-bits-long
+  expiration: 36000000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true

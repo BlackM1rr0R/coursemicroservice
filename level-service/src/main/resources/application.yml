@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: level-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/course_user_db
+    username: root
+    password: Baku2018
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+server:
+  port: 8082
+
+jwt:
+  secret: a-string-secret-at-least-256-bits-long
+  expiration: 36000000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
