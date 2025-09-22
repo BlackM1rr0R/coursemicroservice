@@ -15,6 +15,10 @@ spring:
               uri: http://localhost:8082
               predicates:
                 - Path=/other/**
+            - id: email-service
+              uri: http://localhost:8084
+              predicates:
+                - Path=/email/**
 
 jwt:
   secret: a-string-secret-at-least-256-bits-long
