@@ -10,21 +10,23 @@
         <module name="eureka-service" />
         <module name="api-gateway-service" />
       </profile>
-      <profile name="Annotation profile for email-service" enabled="true">
+      <profile name="Annotation profile for admin-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         </processorPath>
-        <module name="level-service" />
-        <module name="email-service" />
         <module name="user-service" />
+        <module name="level-service" />
+        <module name="admin-service" />
+        <module name="email-service" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="admin-service" options="-parameters" />
       <module name="api-gateway-service" options="-parameters" />
       <module name="email-service" options="-parameters" />
       <module name="eureka-service" options="-parameters" />

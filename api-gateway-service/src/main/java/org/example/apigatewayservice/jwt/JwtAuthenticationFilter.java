@@ -1,5 +1,6 @@
 package org.example.apigatewayservice.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -22,38 +23,42 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getURI().getPath();
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
-        if(path.contains("/user/login") || path.contains("/user/register")) {
+        // login/register açıq qalsın
+        if (path.contains("/user/login") || path.contains("/user/register") || path.contains("/admin/login")) {
             return chain.filter(exchange);
         }
 
-        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
 
         String token = authHeader.substring(7);
-        String email;
+
         try {
-            email = Jwts.parserBuilder()
+            Claims claims = Jwts.parserBuilder()
                     .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
                     .build()
                     .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject(); // token-dən email çıxarılır
+                    .getBody();
+
+            String email = claims.getSubject(); // subject = email
+            String role = claims.get("role", String.class); // əlavə etdiyimiz role
+
+            // header-lərə email və role əlavə edilir
+            ServerHttpRequest request = exchange.getRequest()
+                    .mutate()
+                    .header("X-User-Email", email)
+                    .header("X-User-Role", role)
+                    .build();
+
+            return chain.filter(exchange.mutate().request(request).build());
+
         } catch (Exception e) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
-
-        // Email header kimi əlavə edilir
-        ServerHttpRequest request = exchange.getRequest()
-                .mutate()
-                .header("X-User-Email", email)
-                .build();
-
-        return chain.filter(exchange.mutate().request(request).build());
     }
-
 
     @Override
     public int getOrder() {

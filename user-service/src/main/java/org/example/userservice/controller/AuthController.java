@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -35,7 +36,7 @@ public class AuthController {
         if(userOpt.isEmpty()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
 
         User user = userOpt.get();
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user.getEmail(),user.getRole());
         return ResponseEntity.ok(new AuthResponse(token, user));
     }
 
@@ -53,4 +54,13 @@ public class AuthController {
            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllUsers(@RequestHeader("X-User-Role") String role) {
+        if (!"ADMIN".equals(role)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Access denied: only admins can view all users");
+        }
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+
 }

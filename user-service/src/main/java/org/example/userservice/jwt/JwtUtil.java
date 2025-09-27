@@ -2,6 +2,7 @@ package org.example.userservice.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.example.userservice.roles.UserRole;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -10,9 +11,11 @@ import java.util.Date;
 public class JwtUtil {
     private final String SECRET_KEY = "a-string-secret-at-least-256-bits-long";
 
-    public String generateToken(String email) {
+
+    public String generateToken(String email, UserRole role) {
         return Jwts.builder()
                 .setSubject(email)
+                .claim("role", role.name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000*60*60*10)) // 10 saat
                 .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
@@ -26,5 +29,14 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public String extractRole(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
     }
 }
